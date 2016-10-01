@@ -1,0 +1,20 @@
+{
+  "name": "Nathan Guenther",
+  "description": "Personal Website",
+  "main": "index.html",
+  "authors": [
+    "Nathan Guenther"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/nathang21/nathanguenther.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-sass": "^3.3.7"
+  }
+}

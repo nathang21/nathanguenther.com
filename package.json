@@ -15,5 +15,16 @@
   "bugs": {
     "url": "https://github.com/nathang21/nathanguenther.com/issues"
   },
-  "homepage": "https://github.com/nathang21/nathanguenther.com#readme"
+  "homepage": "https://github.com/nathang21/nathanguenther.com#readme",
+  "devDependencies": {
+    "bootlint": "^0.14.2",
+    "bootstrap": "^3.3.7",
+    "browser-sync": "^2.17.0",
+    "browser-sync-logger": "^1.0.3",
+    "bs-console-info": "^1.0.2",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-inject": "^4.1.0",
+    "gulp-sass": "^2.3.2"
+  }
 }

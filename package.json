@@ -27,6 +27,7 @@
     "gulp-csso": "^2.0.0",
     "gulp-filter": "^4.0.0",
     "gulp-htmlmin": "^3.0.0",
+    "gulp-imagemin": "^3.0.3",
     "gulp-inject": "^4.1.0",
     "gulp-sass": "^2.3.2",
     "main-bower-files": "^2.13.1",

@@ -1,6 +1,24 @@
 $primary-color: red;
-body {
-  //background-color: $primary-color;
+html, body {
+    background: #fffffa;
+    color: #3a3a3a;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 400;
+    height: 100%;
+    margin: 0 auto;
+    max-width: 960px;
+    width: 80%;
+}
+
+.content-container {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .me {
@@ -20,4 +38,13 @@ body {
   font-size: 20px;
   color: #C0C0C0;
   font-weight: 300
+}
+
+#me p {
+  margin-top: 5px;
+  text-align: justify;
+  color: #3a3a3a;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.02em;
 }

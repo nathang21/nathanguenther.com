@@ -9,14 +9,37 @@ var concat = require('gulp-concat');
 var rename = require('gulp-rename');
 var cssmin = require('gulp-cssmin');
 var htmlmin = require('gulp-htmlmin');
+var imagemin = require('gulp-imagemin');
+var browserSync = require('browser-sync').create();
 
+// Static server
+gulp.task('serve', function() {
+    browserSync.init({
+        server: {
+            baseDir: "public",
+            files: ["public/css/*.css", "public/js/*.js", "public/index.html"],
+            index: "index.html",
+            logLevel: "debug",
+            logFileChanges: true,
+            logConnections: true,
+            plugins: ["browser-sync-logger"]
+        }
+    });
+
+    gulp.watch('src/css/*.css', ['css']);
+    gulp.watch('src/img/*', ['img']);
+    gulp.watch('src/index.html', ['html']).on('change', browserSync.reload);
+});
 
 gulp.task('clean', function(){
   return del(['public']);
 });
 
+gulp.task('clean:css', function() {
+  return del (['public/css/*.css']);
+})
 
-gulp.task('css', ['clean'], function(){
+gulp.task('css', ['clean:css'], function(){
   var injectAppFiles = gulp.src('src/css/*.scss', {read: false});
   var injectGlobalFiles = gulp.src('src/global/*.scss', {read: false});
 
@@ -46,20 +69,22 @@ gulp.task('css', ['clean'], function(){
     .pipe(cssmin())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/css'))
+    .pipe(browserSync.stream());
 });
 
 
-gulp.task('vendors', ['clean'], function(){
+gulp.task('vendor', function(){
   return gulp.src(mainBowerFiles())
     .pipe(filter('*.css'))
     .pipe(concat('vendors.css'))
     .pipe(cssmin())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/css'))
+    .pipe(browserSync.stream());
 })
 
 
-gulp.task('html', ['clean', 'css', 'vendors'], function() {
+gulp.task('html', function() {
   var injectFiles = gulp.src(['public/css/main.min.css', 'public/css/vendors.css']);
 
   var injectOptions = {
@@ -74,5 +99,14 @@ gulp.task('html', ['clean', 'css', 'vendors'], function() {
     .pipe(gulp.dest('public'));
 });
 
+gulp.task('img', function() {
+  gulp.src('src/img/*')
+    .pipe(imagemin())
+    .pipe(rename({suffix: '.min'}))
+    .pipe(gulp.dest('public/img'))
+});
 
-gulp.task('default', ['clean', 'css', 'vendors', 'html']);
+
+
+
+gulp.task('default', ['css', 'img', 'vendor', 'html']);

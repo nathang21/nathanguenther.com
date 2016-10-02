@@ -1,4 +1,23 @@
 $primary-color: red;
 body {
-  background-color: $primary-color;
+  //background-color: $primary-color;
+}
+
+.me {
+  text-align: center;
+}
+
+.me h1 {
+  padding-top: 25px;
+  font-family: 'Oswald', sans-serif;
+  margin: 5px;
+  font-size: 80px;
+  font-weight: 400;
+  letter-spacing: 5px;
+}
+
+.me h2 {
+  font-size: 20px;
+  color: #C0C0C0;
+  font-weight: 300
 }

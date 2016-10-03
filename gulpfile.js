@@ -17,7 +17,7 @@ gulp.task('serve', function() {
     browserSync.init({
         server: {
             baseDir: "public",
-            files: ["public/css/*.css", "public/js/*.js", "public/index.html"],
+            files: ["public/css/*.css", "public/js/*.js", "public/index.html", "public/img*"],
             index: "index.html",
             logLevel: "debug",
             logFileChanges: true,
@@ -26,7 +26,7 @@ gulp.task('serve', function() {
         }
     });
 
-    gulp.watch('src/css/*.css', ['clean:css', 'css']);
+    gulp.watch('src/css/*.scss', ['clean:css', 'css']);
     gulp.watch('src/img/*', ['img']);
     gulp.watch('src/index.html', ['html']).on('change', browserSync.reload);
 });

@@ -11,6 +11,8 @@ var cssmin = require('gulp-cssmin');
 var htmlmin = require('gulp-htmlmin');
 var imagemin = require('gulp-imagemin');
 var browserSync = require('browser-sync').create();
+var newer = require('gulp-newer');
+var uncss = require('gulp-uncss');
 
 // Static server
 gulp.task('serve', function() {
@@ -66,6 +68,9 @@ gulp.task('css', function(){
     .pipe(inject(injectGlobalFiles, injectGlobalOptions))
     .pipe(inject(injectAppFiles, injectAppOptions))
     .pipe(sass())
+    .pipe(uncss({
+      html: ['src/index.html']
+    }))
     .pipe(cssmin())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/css'))
@@ -101,6 +106,7 @@ gulp.task('html', function() {
 
 gulp.task('img', function() {
   gulp.src('src/img/*')
+    .pipe(newer('src/img'))
     .pipe(imagemin())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/img'))

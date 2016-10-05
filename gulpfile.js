@@ -3,7 +3,8 @@ var sass = require('gulp-sass');
 var inject = require('gulp-inject');
 var wiredep = require('wiredep').stream;
 var del = require('del');
-var mainBowerFiles = require('main-bower-files');
+//var mainBowerFiles = require('main-bower-files');
+var mainBowerFiles = require('gulp-main-bower-files');
 var filter = require('gulp-filter');
 var concat = require('gulp-concat');
 var rename = require('gulp-rename');
@@ -13,6 +14,7 @@ var imagemin = require('gulp-imagemin');
 var browserSync = require('browser-sync').create();
 var newer = require('gulp-newer');
 var uncss = require('gulp-uncss');
+var uglify = require('gulp-uglify');
 
 // Static server
 gulp.task('serve', function() {
@@ -78,7 +80,7 @@ gulp.task('css', function(){
 });
 
 
-gulp.task('vendor', function(){
+gulp.task('vendor', function() {
   gulp.src(mainBowerFiles())
     .pipe(filter('*.css'))
     .pipe(concat('vendors.css'))
@@ -86,8 +88,27 @@ gulp.task('vendor', function(){
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/css'))
     .pipe(browserSync.stream());
-})
+});
 
+
+gulp.task('bower', function() {
+  var jsFilter = filter('src//*.js', {restore: true});
+  var cssFilter = filter('**//*.css', {restore: true});
+  return gulp.src('bower.json')
+    .pipe(mainBowerFiles())
+    .pipe(jsFilter)
+    .pipe(concat('vendor.js'))
+    .pipe(uglify())
+    .pipe(rename({suffix: '.min'}))
+    .pipe(gulp.dest('public/js'))
+    .pipe(jsFilter.restore)
+    .pipe(cssFilter)
+    .pipe(concat('vendor.css'))
+    .pipe(cssmin())
+    .pipe(rename({suffix: '.min'}))
+    .pipe(gulp.dest('public/css'))
+    .pipe(cssFilter.restore)
+});
 
 gulp.task('html', function() {
   var injectFiles = gulp.src(['public/css/main.min.css', 'public/css/vendors.css']);
@@ -106,10 +127,10 @@ gulp.task('html', function() {
 
 gulp.task('img', function() {
   gulp.src('src/img/*')
-    .pipe(newer('src/img'))
+    .pipe(newer('public/img'))
     .pipe(imagemin())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/img'))
 });
 
-gulp.task('default', ['clean', 'css', 'vendor', 'img', 'html']);
+gulp.task('default', ['clean', 'bower', 'css', 'img', 'html']);

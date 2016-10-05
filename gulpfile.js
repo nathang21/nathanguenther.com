@@ -92,9 +92,9 @@ gulp.task('vendor', function() {
 
 
 gulp.task('bower', function() {
-  var jsFilter = filter('src//*.js', {restore: true});
+  var jsFilter = filter('**//*.js', {restore: true});
   var cssFilter = filter('**//*.css', {restore: true});
-  return gulp.src('bower.json')
+  gulp.src('bower.json')
     .pipe(mainBowerFiles())
     .pipe(jsFilter)
     .pipe(concat('vendor.js'))
@@ -111,7 +111,9 @@ gulp.task('bower', function() {
 });
 
 gulp.task('html', function() {
-  var injectFiles = gulp.src(['public/css/main.min.css', 'public/css/vendors.css']);
+  //var cssInject = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css']);
+  //var jsInject = gulp.src(['public/js/vendor.min.js']);
+  var sources = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js'])
 
   var injectOptions = {
     addRootSlash: false,
@@ -120,7 +122,7 @@ gulp.task('html', function() {
 
   //return gulp.src('src/html/*.html')
  gulp.src('src/index.html')
-    .pipe(inject(injectFiles, injectOptions))
+    .pipe(inject(sources, injectOptions))
     .pipe(htmlmin({collapseWhitespace: true}))
     .pipe(gulp.dest('public'));
 });

@@ -30,7 +30,7 @@ gulp.task('serve', function() {
         }
     });
 
-    gulp.watch('src/css/*.scss', ['clean:css', 'css']);
+    gulp.watch('src/css/*.scss', ['css']);
     gulp.watch('src/img/*', ['img']);
     gulp.watch('src/index.html', ['html']).on('change', browserSync.reload);
 });
@@ -70,9 +70,9 @@ gulp.task('css', function(){
     .pipe(inject(injectGlobalFiles, injectGlobalOptions))
     .pipe(inject(injectAppFiles, injectAppOptions))
     .pipe(sass())
-    .pipe(uncss({
-      html: ['src/index.html']
-    }))
+    //.pipe(uncss({
+    //  html: ['src/index.html'] Messing up MDL template
+    //}))
     .pipe(cssmin())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/css'))

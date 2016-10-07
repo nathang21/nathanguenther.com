@@ -15,6 +15,7 @@ var browserSync = require('browser-sync').create();
 var newer = require('gulp-newer');
 var uncss = require('gulp-uncss');
 var uglify = require('gulp-uglify');
+var merge = require('merge-stream');
 
 // Static server
 gulp.task('serve', function() {
@@ -26,7 +27,9 @@ gulp.task('serve', function() {
             logLevel: "debug",
             logFileChanges: true,
             logConnections: true,
-            plugins: ["browser-sync-logger"]
+            plugins: ["browser-sync-logger"],
+            https: false,
+            reloadOnRestart: true
         }
     });
 
@@ -69,11 +72,12 @@ gulp.task('css', function(){
     .pipe(wiredep())
     .pipe(inject(injectGlobalFiles, injectGlobalOptions))
     .pipe(inject(injectAppFiles, injectAppOptions))
-    .pipe(sass().on('error', function(err) {
-      console.error(err.message);
-      browserSync.notify(err.message, 3000); // Display error in the browser
-      this.emit('end'); // Prevent gulp from catching the error and exiting the watch process
-    }))
+    .pipe(sass())
+    //.on('error', function(err) {
+      //console.error(err.message);
+      //browserSync.notify(err.message, 3000); // Display error in the browser
+      //this.emit('end'); // Prevent gulp from catching the error and exiting the watch process
+    //}))
     //.pipe(uncss({
     //  html: ['src/index.html'] Messing up MDL template
     //}))
@@ -83,7 +87,7 @@ gulp.task('css', function(){
     .pipe(browserSync.stream());
 });
 
-
+// Not in use - replaced by 'bower' task
 gulp.task('vendor', function() {
   gulp.src(mainBowerFiles())
     .pipe(filter('*.css'))
@@ -114,22 +118,26 @@ gulp.task('bower', function() {
     .pipe(cssFilter.restore)
 });
 
+
 gulp.task('html', function() {
-  //var cssInject = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css']);
-  //var jsInject = gulp.src(['public/js/vendor.min.js']);
-  var sources = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js'])
+  var sources = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js'], {read: false});
+  //var sources = ['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js']
+  //var target = gulp.src('src/index.html');
 
   var injectOptions = {
     addRootSlash: false,
     ignorePath: ['src', 'public']
   };
 
-  //return gulp.src('src/html/*.html')
- gulp.src('src/index.html')
+   //gulp.src('src/html/*.html')
+   gulp.src('src/index.html')
     .pipe(inject(sources, injectOptions))
-    .pipe(htmlmin({collapseWhitespace: true}))
-    .pipe(gulp.dest('public'));
+    //.pipe(htmlmin({collapseWhitespace: true}))
+    .pipe(gulp.dest('public'))
+
+    //return merge(sources, target);
 });
+
 
 gulp.task('img', function() {
   gulp.src('src/img/*')

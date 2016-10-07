@@ -250,3 +250,20 @@ html, body {
   color: #9e9e9e;
   text-decoration: none;
 }
+
+.links {
+  align-items: baseline;
+  padding: 10px 15px;
+}
+
+.link1, .link2, .link3 {
+  float: left;
+}
+
+.link4 {
+  margin-right: 60px;
+}
+
+.floatClear {
+    clear: both;
+}

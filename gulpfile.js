@@ -69,7 +69,11 @@ gulp.task('css', function(){
     .pipe(wiredep())
     .pipe(inject(injectGlobalFiles, injectGlobalOptions))
     .pipe(inject(injectAppFiles, injectAppOptions))
-    .pipe(sass())
+    .pipe(sass().on('error', function(err) {
+      console.error(err.message);
+      browserSync.notify(err.message, 3000); // Display error in the browser
+      this.emit('end'); // Prevent gulp from catching the error and exiting the watch process
+    }))
     //.pipe(uncss({
     //  html: ['src/index.html'] Messing up MDL template
     //}))

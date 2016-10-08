@@ -122,6 +122,16 @@ gulp.task('bower', function() {
     .pipe(cssFilter.restore)
 });
 
+// Placeholder
+gulp.task('js', function() {
+  gulp.src(['src/js/*.js'])
+      .pipe(jshint())
+      .pipe(jshint.reporter('jshint-stylish'))
+      .pipe(uglify())
+      .pipe(rename({suffix: '.min'}))
+      .pipe(gulp.dest('public/js'))
+});
+
 
 gulp.task('img', function() {
   gulp.src('src/img/*')

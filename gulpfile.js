@@ -142,6 +142,12 @@ gulp.task('img', function() {
 });
 
 
+gulp.task('fonts', function() {
+  gulp.src('bower_components/components-font-awesome/fonts/*')
+    .pipe(gulp.dest('public/fonts'))
+});
+
+
 gulp.task('html', function() {
   var sources = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js'], {read: false});
 
@@ -170,4 +176,4 @@ gulp.task('html', function() {
 });
 
 
-gulp.task('default', ['clean', 'bower', 'css', 'img', 'html']);
+gulp.task('default', ['clean', 'bower', 'fonts', 'css', 'img', 'html']);

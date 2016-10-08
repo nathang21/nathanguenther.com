@@ -4,7 +4,6 @@ var inject = require('gulp-inject');
 var wiredep = require('wiredep').stream;
 var del = require('del');
 //var mainBowerFiles = require('main-bower-files');
-var mainBowerFiles = require('gulp-main-bower-files');
 var filter = require('gulp-filter');
 var concat = require('gulp-concat');
 var rename = require('gulp-rename');
@@ -16,8 +15,9 @@ var cssmin = require('gulp-cssmin');
 var jslint = require('gulp-jslint');
 var uglify = require('gulp-uglify');
 var imagemin = require('gulp-imagemin');
-var browserSync = require('browser-sync').create();
+var mainBowerFiles = require('gulp-main-bower-files');
 var newer = require('gulp-newer');
+var browserSync = require('browser-sync').create();
 
 // Static server
 gulp.task('serve', function() {
@@ -144,8 +144,6 @@ gulp.task('img', function() {
 
 gulp.task('html', function() {
   var sources = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js'], {read: false});
-  //var sources = ['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js']
-  //var target = gulp.src('src/index.html');
 
   var injectOptions = {
     addRootSlash: false,
@@ -157,10 +155,18 @@ gulp.task('html', function() {
     .pipe(inject(sources, injectOptions))
     .pipe(htmlhint())
     .pipe(htmlhint.reporter(require('htmlhint-stylish')))
-    //.pipe(htmlmin({collapseWhitespace: true}))
+    .pipe(htmlmin({
+      collapseWhitespace: true,
+      removeComments: true,
+      removeCommentsFromCDATA: true,
+      removeCDATASectionsFromCDATA: true,
+      collapseBooleanAttributes: true,
+      removeRedundantAttributes: true,
+      useShortDoctype: true,
+      removeEmptyAttributes: true
+    }))
     .pipe(gulp.dest('public'))
 
-    //return merge(sources, target);
 });
 
 

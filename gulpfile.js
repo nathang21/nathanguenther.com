@@ -8,14 +8,16 @@ var mainBowerFiles = require('gulp-main-bower-files');
 var filter = require('gulp-filter');
 var concat = require('gulp-concat');
 var rename = require('gulp-rename');
-var cssmin = require('gulp-cssmin');
+var htmlhint = require("gulp-htmlhint");
 var htmlmin = require('gulp-htmlmin');
+var csslint = require('gulp-csslint');
+var uncss = require('gulp-uncss');
+var cssmin = require('gulp-cssmin');
+var jslint = require('gulp-jslint');
+var uglify = require('gulp-uglify');
 var imagemin = require('gulp-imagemin');
 var browserSync = require('browser-sync').create();
 var newer = require('gulp-newer');
-var uncss = require('gulp-uncss');
-var uglify = require('gulp-uglify');
-var merge = require('merge-stream');
 
 // Static server
 gulp.task('serve', function() {
@@ -73,14 +75,16 @@ gulp.task('css', function(){
     .pipe(inject(injectGlobalFiles, injectGlobalOptions))
     .pipe(inject(injectAppFiles, injectAppOptions))
     .pipe(sass())
-    //.on('error', function(err) {
-      //console.error(err.message);
-      //browserSync.notify(err.message, 3000); // Display error in the browser
-      //this.emit('end'); // Prevent gulp from catching the error and exiting the watch process
-    //}))
+    .on('error', function(err) {
+      console.error(err.message);
+      browserSync.notify(err.message, 3000); // Display error in the browser
+      this.emit('end'); // Prevent gulp from catching the error and exiting the watch process
+    })
     //.pipe(uncss({
     //  html: ['src/index.html'] Messing up MDL template
     //}))
+    .pipe(csslint())
+    .pipe(csslint.formatter(require('csslint-stylish')))
     .pipe(cssmin())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/css'))
@@ -119,6 +123,15 @@ gulp.task('bower', function() {
 });
 
 
+gulp.task('img', function() {
+  gulp.src('src/img/*')
+    .pipe(newer('public/img'))
+    .pipe(imagemin())
+    .pipe(rename({suffix: '.min'}))
+    .pipe(gulp.dest('public/img'))
+});
+
+
 gulp.task('html', function() {
   var sources = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js'], {read: false});
   //var sources = ['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js']
@@ -132,19 +145,13 @@ gulp.task('html', function() {
    //gulp.src('src/html/*.html')
    gulp.src('src/index.html')
     .pipe(inject(sources, injectOptions))
+    .pipe(htmlhint())
+    .pipe(htmlhint.reporter(require('htmlhint-stylish')))
     //.pipe(htmlmin({collapseWhitespace: true}))
     .pipe(gulp.dest('public'))
 
     //return merge(sources, target);
 });
 
-
-gulp.task('img', function() {
-  gulp.src('src/img/*')
-    .pipe(newer('public/img'))
-    .pipe(imagemin())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(gulp.dest('public/img'))
-});
 
 gulp.task('default', ['clean', 'bower', 'css', 'img', 'html']);

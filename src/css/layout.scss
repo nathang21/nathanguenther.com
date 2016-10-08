@@ -251,19 +251,19 @@ html, body {
   text-decoration: none;
 }
 
-.links {
+#links {
   align-items: baseline;
   padding: 10px 15px;
 }
 
-.link1 .link2 .link3 {
+#link1, #link2, #link3 {
   float: left;
 }
 
-.link4 {
+#link4 {
   margin-right: 60px;
 }
 
-.floatClear {
+#floatClear {
     clear: both;
 }

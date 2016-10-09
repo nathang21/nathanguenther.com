@@ -251,19 +251,29 @@ html, body {
   text-decoration: none;
 }
 
+#flex-container-links {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 5px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+  //width: 628.22;
+  margin-bottom: 5px;
+
+}
+
 #links {
-  align-items: baseline;
-  padding: 10px 15px;
+  //float: center;
+  //align-items: right;
+  //margin-left: 50px;
+  //margin-right: 50px;
+  width: 100px;
+  height: 100px;
+  margin: 10px;
 }
 
-#link1, #link2, #link3 {
-  float: left;
-}
-
-#link4 {
-  margin-right: 60px;
-}
-
-#floatClear {
-    clear: both;
+#profile-pic {
+  height: 100%;
+  width: 100%;
 }

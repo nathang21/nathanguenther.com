@@ -60,8 +60,7 @@ gulp.task('clean:vendor', function() {
   del (['public/vendor/*']);
 })
 
-
-gulp.task('css', function() {
+gulp.task('lint:css', function() {
   var injectAppFiles = gulp.src('src/css/*.scss', {read: false});
   var injectGlobalFiles = gulp.src('src/global/*.scss', {read: false});
 
@@ -94,11 +93,50 @@ gulp.task('css', function() {
       browserSync.notify(err.message, 3000); // Display error in the browser
       this.emit('end'); // Prevent gulp from catching the error and exiting the watch process
     })
+    .pipe(csslint())
+    .pipe(csslint.formatter(require('csslint-stylish')))
+});
+
+
+gulp.task('css', function() {
+  var injectAppFiles = gulp.src('src/css/*.scss', {read: false});
+  var injectGlobalFiles = gulp.src('src/global/*.scss', {read: false});
+
+  function transformFilepath(filepath) {
+    return '@import "' + filepath + '";';
+  }
+
+  // My SCSS
+  var injectAppOptions = {
+    transform: transformFilepath,
+    starttag: '// inject:app',
+    endtag: '// endinject',
+    addRootSlash: false
+  };
+
+  // Global Overrides
+  var injectGlobalOptions = {
+    transform: transformFilepath,
+    starttag: '// inject:global',
+    endtag: '// endinject',
+    addRootSlash: false
+  };
+
+  gulp.src('src/main.scss')
+    .pipe(wiredep())
+    .pipe(inject(injectGlobalFiles, injectGlobalOptions))
+    .pipe(inject(injectAppFiles, injectAppOptions))
+    .pipe(sass())
+    .on('error', function(err) {
+      console.error(err.message);
+      browserSync.notify(err.message, 3000); // Display error in the browser
+      this.emit('end'); // Prevent gulp from catching the error and exiting the watch process
+    })
     //.pipe(uncss({
     //  html: ['src/index.html'] Messing up MDL template
     //}))
-    .pipe(csslint())
-    .pipe(csslint.formatter(require('csslint-stylish')))
+    //.pipe(csslint())
+    //.pipe(csslint.formatter(require('csslint-stylish')))
     .pipe(gulp.dest('public/css'))
     .pipe(browserSync.stream());
 });
@@ -140,8 +178,8 @@ gulp.task('css-opt', function() {
     //.pipe(uncss({
     //  html: ['src/index.html'] Messing up MDL template
     //}))
-    .pipe(csslint())
-    .pipe(csslint.formatter(require('csslint-stylish')))
+    //.pipe(csslint())
+    .//pipe(csslint.formatter(require('csslint-stylish')))
     .pipe(cssmin())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('public/css'))
@@ -149,19 +187,31 @@ gulp.task('css-opt', function() {
 });
 
 // Gather all css from bower
-gulp.task('wiredep-css', function() {
+gulp.task('wiredep:css', function() {
    gulp.src(wiredep2().css)
    .pipe(gulp.dest('public/vendor'))
 });
 
+// Not in use - Currently injecting all into main.scss
+// In future consider seperating out vendor compiled scss
+// Makes lint + opt cleaner
+// Gather all scss from bower
+gulp.task('wiredep-scss', function() {
+  gulp.src('src/css/vendor.scss')
+   .pipe(wiredep())
+   .pipe(sass())
+   .pipe(rename('scss.css'))
+   .pipe(gulp.dest('public/vendor'))
+});
+
 // Gather all js from bower
-gulp.task('wiredep-js', function() {
+gulp.task('wiredep:js', function() {
    gulp.src(wiredep2().js)
    .pipe(gulp.dest('public/vendor'))
 });
 
 // Gather all css from bower + concat + minify
-gulp.task('wiredep-css-opt', function() {
+gulp.task('wiredep:css-opt', function() {
    gulp.src(wiredep2().css)
    .pipe(concat('vendor.css'))
    .pipe(cssmin())
@@ -170,7 +220,7 @@ gulp.task('wiredep-css-opt', function() {
 });
 
 // Gather all js from bower + concat + minify
-gulp.task('wiredep-js-opt', function() {
+gulp.task('wiredep:js-opt', function() {
    gulp.src(wiredep2().js)
    .pipe(concat('vendor.js'))
    .pipe(uglify())
@@ -305,10 +355,10 @@ gulp.task('html-opt', function() {
 
 
 // Default for Development
-gulp.task('default', ['clean', 'wiredep-css', 'wiredep-js', 'css', 'js', 'img', 'fonts', 'html']);
+gulp.task('default', ['clean', 'wiredep:css', 'wiredep:js', 'css', 'js', 'img', 'fonts', 'lint:css', 'html']);
 
 // Build for Production
-gulp.task('build', ['clean', 'wiredep-css', 'wiredep-js', 'css-opt', 'js-opt', 'img', 'fonts', 'html-opt']);
+gulp.task('build', ['clean', 'wiredep:css', 'wiredep:js', 'css-opt', 'js-opt', 'img', 'fonts', 'html-opt']);
 
 // Same as build + concats & optimizes vendors
-gulp.task('build-opt', ['clean', 'wiredep-css-opt', 'wiredep-js-opt', 'css-opt', 'js-opt', 'img', 'fonts', 'html-opt']);
+gulp.task('build-opt', ['clean', 'wiredep:css-opt', 'wiredep:js-opt', 'css-opt', 'js-opt', 'img', 'fonts', 'html-opt']);

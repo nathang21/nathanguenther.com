@@ -1,9 +1,9 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var inject = require('gulp-inject');
-var wiredep = require('wiredep').stream;
+var wiredep = require('wiredep').stream
+var wiredep2 = require('wiredep') //.stream
 var del = require('del');
-//var mainBowerFiles = require('main-bower-files');
 var filter = require('gulp-filter');
 var concat = require('gulp-concat');
 var rename = require('gulp-rename');
@@ -12,19 +12,21 @@ var htmlmin = require('gulp-htmlmin');
 var csslint = require('gulp-csslint');
 var uncss = require('gulp-uncss');
 var cssmin = require('gulp-cssmin');
-var jslint = require('gulp-jslint');
+var jshint  = require('gulp-jshint');
 var uglify = require('gulp-uglify');
 var imagemin = require('gulp-imagemin');
 var mainBowerFiles = require('gulp-main-bower-files');
 var newer = require('gulp-newer');
 var browserSync = require('browser-sync').create();
+var plugins = require('gulp-load-plugins')();
+
 
 // Static server
 gulp.task('serve', function() {
     browserSync.init({
         server: {
             baseDir: "public",
-            files: ["public/css/*.css", "public/js/*.js", "public/index.html", "public/img*"],
+            files: ["public/css/*.css", "public/js/*.js", "public/vendor/*, public/index.html", "public/img/*"],
             index: "index.html",
             logLevel: "debug",
             logFileChanges: true,
@@ -36,6 +38,8 @@ gulp.task('serve', function() {
     });
 
     gulp.watch('src/css/*.scss', ['css']);
+    gulp.watch('src/global/*.scss', ['css']);
+    gulp.watch('src/js/*.js', ['js']);
     gulp.watch('src/img/*', ['img']);
     gulp.watch('src/index.html', ['html']).on('change', browserSync.reload);
 });
@@ -48,7 +52,16 @@ gulp.task('clean:css', function() {
   del (['public/css/*.css']);
 })
 
-gulp.task('css', function(){
+gulp.task('clean:css', function() {
+  del (['public/css/*.css']);
+})
+
+gulp.task('clean:vendor', function() {
+  del (['public/vendor/*']);
+})
+
+
+gulp.task('css', function() {
   var injectAppFiles = gulp.src('src/css/*.scss', {read: false});
   var injectGlobalFiles = gulp.src('src/global/*.scss', {read: false});
 
@@ -56,6 +69,7 @@ gulp.task('css', function(){
     return '@import "' + filepath + '";';
   }
 
+  // My SCSS
   var injectAppOptions = {
     transform: transformFilepath,
     starttag: '// inject:app',
@@ -63,6 +77,7 @@ gulp.task('css', function(){
     addRootSlash: false
   };
 
+  // Global Overrides
   var injectGlobalOptions = {
     transform: transformFilepath,
     starttag: '// inject:global',
@@ -71,7 +86,49 @@ gulp.task('css', function(){
   };
 
   gulp.src('src/main.scss')
-    .pipe(wiredep())
+    .pipe(inject(injectGlobalFiles, injectGlobalOptions))
+    .pipe(inject(injectAppFiles, injectAppOptions))
+    .pipe(sass())
+    .on('error', function(err) {
+      console.error(err.message);
+      browserSync.notify(err.message, 3000); // Display error in the browser
+      this.emit('end'); // Prevent gulp from catching the error and exiting the watch process
+    })
+    //.pipe(uncss({
+    //  html: ['src/index.html'] Messing up MDL template
+    //}))
+    .pipe(csslint())
+    .pipe(csslint.formatter(require('csslint-stylish')))
+    .pipe(gulp.dest('public/css'))
+    .pipe(browserSync.stream());
+});
+
+
+gulp.task('css-opt', function() {
+  var injectAppFiles = gulp.src('src/css/*.scss', {read: false});
+  var injectGlobalFiles = gulp.src('src/global/*.scss', {read: false});
+
+  function transformFilepath(filepath) {
+    return '@import "' + filepath + '";';
+  }
+
+  // My SCSS
+  var injectAppOptions = {
+    transform: transformFilepath,
+    starttag: '// inject:app',
+    endtag: '// endinject',
+    addRootSlash: false
+  };
+
+  // Global Overrides
+  var injectGlobalOptions = {
+    transform: transformFilepath,
+    starttag: '// inject:global',
+    endtag: '// endinject',
+    addRootSlash: false
+  };
+
+  gulp.src('src/main.scss')
     .pipe(inject(injectGlobalFiles, injectGlobalOptions))
     .pipe(inject(injectAppFiles, injectAppOptions))
     .pipe(sass())
@@ -91,47 +148,54 @@ gulp.task('css', function(){
     .pipe(browserSync.stream());
 });
 
-// Not in use - replaced by 'bower' task
-gulp.task('vendor', function() {
-  gulp.src(mainBowerFiles())
-    .pipe(filter('*.css'))
-    .pipe(concat('vendors.css'))
-    .pipe(cssmin())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(gulp.dest('public/css'))
-    .pipe(browserSync.stream());
+// Gather all css from bower
+gulp.task('wiredep-css', function() {
+   gulp.src(wiredep2().css)
+   .pipe(gulp.dest('public/vendor'))
 });
 
+// Gather all js from bower
+gulp.task('wiredep-js', function() {
+   gulp.src(wiredep2().js)
+   .pipe(gulp.dest('public/vendor'))
+});
 
-gulp.task('bower', function() {
-  var jsFilter = filter('**//*.js', {restore: true});
-  var cssFilter = filter('**//*.css', {restore: true});
-  gulp.src('bower.json')
-    .pipe(mainBowerFiles())
-    .pipe(jsFilter)
-    .pipe(concat('vendor.js'))
-    .pipe(uglify())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(gulp.dest('public/js'))
-    .pipe(jsFilter.restore)
-    .pipe(cssFilter)
-    .pipe(concat('vendor.css'))
-    .pipe(cssmin())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(gulp.dest('public/css'))
-    .pipe(cssFilter.restore)
+// Gather all css from bower + concat + minify
+gulp.task('wiredep-css-opt', function() {
+   gulp.src(wiredep2().css)
+   .pipe(concat('vendor.css'))
+   .pipe(cssmin())
+   .pipe(rename({suffix: '.min'}))
+   .pipe(gulp.dest('public/vendor'))
+});
+
+// Gather all js from bower + concat + minify
+gulp.task('wiredep-js-opt', function() {
+   gulp.src(wiredep2().js)
+   .pipe(concat('vendor.js'))
+   .pipe(uglify())
+   .pipe(rename({suffix: '.min'}))
+   .pipe(gulp.dest('public/vendor'))
 });
 
 // Placeholder
 gulp.task('js', function() {
   gulp.src(['src/js/*.js'])
-      .pipe(jshint())
-      .pipe(jshint.reporter('jshint-stylish'))
+      .pipe(jshint ())
+      .pipe(jshint .reporter('jshint-stylish'))
+      .pipe(gulp.dest('public/js'))
+});
+
+// Placeholder
+gulp.task('js-opt', function() {
+  gulp.src(['src/js/*.js'])
+      .pipe(jshint ())
+      .pipe(jshint .reporter('jshint-stylish'))
+      .pipe(concat('vendor.js'))
       .pipe(uglify())
       .pipe(rename({suffix: '.min'}))
       .pipe(gulp.dest('public/js'))
 });
-
 
 gulp.task('img', function() {
   gulp.src('src/img/*')
@@ -149,31 +213,102 @@ gulp.task('fonts', function() {
 
 
 gulp.task('html', function() {
-  var sources = gulp.src(['public/css/main.min.css', 'public/css/vendor.min.css', 'public/js/vendor.min.js'], {read: false});
-
-  var injectOptions = {
-    addRootSlash: false,
-    ignorePath: ['src', 'public']
-  };
-
-   //gulp.src('src/html/*.html')
-   gulp.src('src/index.html')
-    .pipe(inject(sources, injectOptions))
-    .pipe(htmlhint())
-    .pipe(htmlhint.reporter(require('htmlhint-stylish')))
-    .pipe(htmlmin({
-      collapseWhitespace: true,
-      removeComments: true,
-      removeCommentsFromCDATA: true,
-      removeCDATASectionsFromCDATA: true,
-      collapseBooleanAttributes: true,
-      removeRedundantAttributes: true,
-      useShortDoctype: true,
-      removeEmptyAttributes: true
+  gulp.src('src/index.html')
+    // Inject bower css/js as vendor
+    .pipe(wiredep2.stream({
+      fileTypes: {
+        html: {
+          replace: {
+            js: function(filePath) {
+              return '<script src="' + 'vendor/' + filePath.split('/').pop() + '"></script>';
+            },
+            css: function(filePath) {
+              return '<link rel="stylesheet" href="' + 'vendor/' + filePath.split('/').pop() + '"/>';
+            }
+          }
+        }
+      }
     }))
-    .pipe(gulp.dest('public'))
 
+    // Inject personal CSS
+    .pipe(plugins.inject(
+      //gulp.src(['src/**/*.css'], { read: false }), {
+      gulp.src(['public/css/*.css'], { read: false }), {
+        addRootSlash: false,
+        transform: function(filePath, file, i, length) {
+          return '<link rel="stylesheet" href="' + filePath.replace('public/', '') + '"/>';
+      }
+    }))
+    // Inject personal JS
+    .pipe(plugins.inject(
+      gulp.src(['src/**/*.js'], { read: false }), {
+        addRootSlash: false,
+        transform: function(filePath, file, i, length) {
+          return '<script src="' + filePath.replace('public/', '') + '"></script>';
+        }
+      }))
+      .pipe(htmlhint())
+      .pipe(htmlhint.reporter(require('htmlhint-stylish')))
+      .pipe(gulp.dest('public'));
 });
 
 
-gulp.task('default', ['clean', 'bower', 'fonts', 'css', 'img', 'html']);
+gulp.task('html-opt', function() {
+  gulp.src('src/index.html')
+    // Inject bower css/js as vendor
+    .pipe(wiredep2.stream({
+      fileTypes: {
+        html: {
+          replace: {
+            js: function(filePath) {
+              return '<script src="' + 'vendor/' + filePath.split('/').pop() + '"></script>';
+            },
+            css: function(filePath) {
+              return '<link rel="stylesheet" href="' + 'vendor/' + filePath.split('/').pop() + '"/>';
+            }
+          }
+        }
+      }
+    }))
+
+    // Inject personal CSS
+    .pipe(plugins.inject(
+      //gulp.src(['src/**/*.css'], { read: false }), {
+      gulp.src(['public/css/*.css'], { read: false }), {
+        addRootSlash: false,
+        transform: function(filePath, file, i, length) {
+          return '<link rel="stylesheet" href="' + filePath.replace('public/', '') + '"/>';
+      }
+    }))
+    // Inject personal JS
+    .pipe(plugins.inject(
+      gulp.src(['src/**/*.js'], { read: false }), {
+        addRootSlash: false,
+        transform: function(filePath, file, i, length) {
+          return '<script src="' + filePath.replace('public/', '') + '"></script>';
+        }
+      }))
+      .pipe(htmlhint())
+      .pipe(htmlhint.reporter(require('htmlhint-stylish')))
+      .pipe(htmlmin({
+        collapseWhitespace: true,
+        removeComments: true,
+        removeCommentsFromCDATA: true,
+        removeCDATASectionsFromCDATA: true,
+        collapseBooleanAttributes: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        removeEmptyAttributes: true
+      }))
+      .pipe(gulp.dest('public'));
+});
+
+
+// Default for Development
+gulp.task('default', ['clean', 'wiredep-css', 'wiredep-js', 'css', 'js', 'img', 'fonts', 'html']);
+
+// Build for Production
+gulp.task('build', ['clean', 'wiredep-css', 'wiredep-js', 'css-opt', 'js-opt', 'img', 'fonts', 'html-opt']);
+
+// Same as build + concats & optimizes vendors
+gulp.task('build-opt', ['clean', 'wiredep-css-opt', 'wiredep-js-opt', 'css-opt', 'js-opt', 'img', 'fonts', 'html-opt']);

@@ -16,6 +16,8 @@
   ],
   "dependencies": {
     "material-design-lite": "^1.2.1",
-    "components-font-awesome": "^4.6.3"
-  }
+    "components-font-awesome": "^4.6.3",
+    "bootstrap-sass": "^3.3.7"
+  },
+  "devDependencies": {}
 }

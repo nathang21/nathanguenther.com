@@ -15,7 +15,6 @@ var cssmin = require('gulp-cssmin');
 var jshint  = require('gulp-jshint');
 var uglify = require('gulp-uglify');
 var imagemin = require('gulp-imagemin');
-//var mainBowerFiles = require('gulp-main-bower-files');
 var newer = require('gulp-newer');
 var browserSync = require('browser-sync').create();
 var plugins = require('gulp-load-plugins')();

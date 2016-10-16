@@ -254,10 +254,13 @@ html, body {
 #flex-container-links {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   padding: 5px;
-  display: -webkit-flex;
-  display: flex;
+  //display: -webkit-flex;
+  //display: flex;
   -webkit-justify-content: space-around;
   justify-content: space-around;
+  align-content: space-around;
+  align-items: center;
+  width: auto;
 }
 
 #links {

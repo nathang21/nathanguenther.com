@@ -1,0 +1,51 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.14.1
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:hoek:20180212':
+    - gulp-uncss > uncss > request > hawk > hoek:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp-uncss > uncss > request > hawk > boom > hoek:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp-uncss > uncss > request > hawk > sntp > hoek:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp-uncss > uncss > request > hawk > cryptiles > boom > hoek:
+        patched: '2020-05-15T23:12:39.828Z'
+  SNYK-JS-LODASH-567746:
+    - gulp-jshint > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp-uglify > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - jshint > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - wiredep > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - browser-sync > easy-extender > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - browser-sync-logger > browser-sync > easy-extender > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp-sass > node-sass > sass-graph > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - wiredep > wiredep-cli > wiredep > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp-sass > node-sass > gaze > globule > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp-uncss > uncss > request > form-data > async > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+  'npm:lodash:20180130':
+    - browser-sync-logger > eazy-logger > opt-merger > lodash:
+        patched: '2020-05-15T23:12:39.828Z'
+  'npm:minimatch:20160620':
+    - gulp > vinyl-fs > glob-stream > minimatch:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch:
+        patched: '2020-05-15T23:12:39.828Z'
+    - gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch:
+        patched: '2020-05-15T23:12:39.828Z'
+  'npm:tough-cookie:20170905':
+    - gulp-uncss > uncss > request > tough-cookie:
+        patched: '2020-05-15T23:12:39.828Z'
+  'npm:tunnel-agent:20170305':
+    - gulp-uncss > uncss > request > tunnel-agent:
+        patched: '2020-05-15T23:12:39.828Z'

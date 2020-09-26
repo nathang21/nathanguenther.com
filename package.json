@@ -20,7 +20,7 @@
     "browser-sync": "^2.17.0",
     "browser-sync-logger": "^1.0.3",
     "csslint-stylish": "0.0.5",
-    "del": "^2.2.2",
+    "del": "^6.0.0",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
     "gulp-csslint": "^1.0.0",

@@ -1,4 +1,4 @@
-FROM nginx
+FROM nginx:stable
 
 RUN mkdir /etc/nginx/logs && touch /etc/nginx/logs/static.log
 
